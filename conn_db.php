@@ -3,8 +3,8 @@
 $host = '127.0.0.1';
 $db = 'API_mobile';
 $port = 3306;
-$user = '######';
-$pass = '#######';
+$user = "#####";
+$pass = "#####";
 
 
 $conn = new mysqli($host, $user, $pass, $db);

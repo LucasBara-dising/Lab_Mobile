@@ -4,13 +4,15 @@ header('Content-Type: application/json'); // Define o tipo de conteúdo como JSO
 
 require_once 'conn_db.php'; // Inclui o arquivo de configuração do banco de dados
 
+
 if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi fornecido
     $nome_user = $_GET['nome_user'];
 
     // Preparar a declaração SQL para evitar injeção de SQL
-    $stmt = $conn->prepare("SELECT nome_user, energia, moedas FROM TB_Usuario WHERE nome_user = ?");
+    $stmt = $conn->prepare("SELECT nome_usuario, energia, moedas, avatar_id FROM tb_usuario WHERE nome_usuario = ?");
     $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
 
+   
     // Executar a consulta
     $stmt->execute();
 

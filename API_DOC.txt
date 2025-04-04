@@ -1,0 +1,17 @@
+Doc Da API
+
+GET Lab_Mobile/perfil.php?nome_user=jogador01
+paramentro:nome_user
+-> retrona infos basicas do user
+
+GET Lab_Mobile/all_card.php
+->retorna todas as cartas com as infos e nomes da coleção
+
+GET Lab_Mobile/all_card_user.php
+paramentro:nome_user
+->retorna todas as cartas com as infos e nomes da coleção e uma coluna dizendo se o user possui a carta
+
+POST Lab_Mobile/create_user.php
+paramentro:nome_user, email, senha
+->Passa no body nome_user, email, senha para criar um user
+
