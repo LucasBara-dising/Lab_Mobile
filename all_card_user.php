@@ -7,13 +7,14 @@ require_once 'conn_db.php'; // Inclui o arquivo de configuração do banco de da
 if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi fornecido
     $nome_user = $_GET['nome_user'];
     
-    // Preparar a declaração SQL para evitar injeção de SQL
+    //Preparar a declaração SQL para evitar injeção de SQL
     $stmt = $conn->prepare("SELECT card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, 
 	col.nome_colecao, col.tipo_colecao, 
     IF(itens_user.tipo_item='carta' AND itens_user.item_id = card.id_carta AND itens_user.user_id = (Select id_user from tb_usuario where nome_usuario= ?), TRUE, FALSE) AS 'hasCard' from tb_carta as card 
         left join tb_usuarios_itens as itens_user ON card.id_carta = itens_user.item_id 	
         inner join tb_colecao as col ON card.id_colecao = col.id_colecao" 
     );
+
     $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
 
     // Executar a consulta
@@ -28,16 +29,16 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
         $cards[] = array(
             "id" => $card['id_carta'],
             "nome" => $card['nome'],
-            "descricao" => $card['descricao'],
-            "raridade" => $card['raridade'],
-            "tipo" => $card['tipo'],
+            //"descricao" => $card['descricao'],
+            //"raridade" => $card['raridade'],
+            //"tipo" => $card['tipo'],
             "vida" => $card['vida'],
             "mana" => $card['mana'],
             "energia" => $card['energia'],
             "imagem" => $card['imagem'],
-            "descricao" => $card['descricao'],
+            // "descricao" => $card['descricao'],
             "colecao" => $card['nome_colecao'],
-            "tipo_colecao" => $card['tipo_colecao'],
+            //"tipo_colecao" => $card['tipo_colecao'],
             "tem_carta" => $card['hasCard'],
         );
     }

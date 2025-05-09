@@ -1,12 +1,12 @@
 <?php
 
-header('Content-Type: application/json'); // Define o tipo de conteúdo como JSON
+header('Content-Type: application/json;charset=utf-8'); // Define o tipo de conteúdo como JSON
 
 require_once 'conn_db.php'; // Inclui o arquivo de configuração do banco de dados
+ini_set('default_charset','UTF-8');
 
 if ($_SERVER['REQUEST_METHOD'] =='GET'){
-
-    // Preparar a declaração SQL para evitar injeção de SQL
+    
     $stmt = $conn->prepare("SELECT card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, col.nome_colecao, col.tipo_colecao FROM tb_carta AS card INNER JOIN	tb_colecao AS col ON card.id_colecao = col.id_colecao ");
 
     // Executar a consulta
@@ -14,14 +14,14 @@ if ($_SERVER['REQUEST_METHOD'] =='GET'){
 
     // Obter o resultado
     $result = $stmt->get_result();
-    
-    $cards = [];
+    $cards = [];    
+
+    //Por algum motivo falha nas palvras com acesnto
     while ($card = $result->fetch_assoc()) {
-        
+
         $cards[] = array(
             "id" => $card['id_carta'],
             "nome" => $card['nome'],
-            "descricao" => $card['descricao'],
             "raridade" => $card['raridade'],
             "tipo" => $card['tipo'],
             "vida" => $card['vida'],
@@ -34,21 +34,22 @@ if ($_SERVER['REQUEST_METHOD'] =='GET'){
         );
     }
 
+
     echo json_encode(array(
         "status" => "success",
         "itens" => $cards
-    ));
+    ), JSON_PRETTY_PRINT);
 
     if ($result->num_rows <= 0) {
         // Usuário encontrado
-        echo json_encode(array("mensagem" => "Usuário não encontrado"), JSON_PRETTY_PRINT);
+        echo json_encode(array("mensagem" => "Cartas não encontrado"), JSON_PRETTY_PRINT);
     }
 
     // Fechar a declaração
     $stmt->close();
 } else {
     // Parâmetro 'nome_user' não fornecido
-    echo json_encode(array("mensagem" => "Parâmetro 'nome_user' é obrigatório"), JSON_PRETTY_PRINT);
+    echo json_encode(array("mensagem" => "Falha Na requisisao"), JSON_PRETTY_PRINT);
 }
 
 

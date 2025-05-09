@@ -3,13 +3,12 @@ header('Content-Type: application/json');
 
 require_once 'conn_db.php';
 
-echo json_encode(array("status" => "error", "message" => "5tes5te ou aposta não podem estar vazios"));
 // Verifica se os dados foram enviados via POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    //$input = json_decode(file_get_contents('php://input'), true);
 
     $nome_user = $_POST['nome_user'];
-    $energia = $_POST['energia'];
+    //$energia = $_POST['energia'];
+    $energia = 100;
 
     // Verificar se os campos estão preenchidos
     if (empty($nome_user) || empty($energia)) {
