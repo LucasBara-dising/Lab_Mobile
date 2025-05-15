@@ -9,7 +9,7 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
     $nome_user = $_GET['nome_user'];
 
     // Preparar a declaração SQL para evitar injeção de SQL
-    $stmt = $conn->prepare("SELECT nome_usuario, energia, moedas, avatar_id FROM tb_usuario WHERE nome_usuario = ?");
+    $stmt = $conn->prepare("SELECT nome_usuario, rodadas, moedas, avatar_id FROM tb_usuario WHERE nome_usuario = ?");
     $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
 
    

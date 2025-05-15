@@ -12,7 +12,7 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
 	col.nome_colecao, col.tipo_colecao, 
     IF(itens_user.tipo_item='carta' AND itens_user.item_id = card.id_carta AND itens_user.user_id = (Select id_user from tb_usuario where nome_usuario= ?), TRUE, FALSE) AS 'hasCard' from tb_carta as card 
         left join tb_usuarios_itens as itens_user ON card.id_carta = itens_user.item_id 	
-        inner join tb_colecao as col ON card.id_colecao = col.id_colecao" 
+        inner join tb_colecao as col ON card.id_colecao = col.id_colecao"  
     );
 
     $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
@@ -29,16 +29,15 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
         $cards[] = array(
             "id" => $card['id_carta'],
             "nome" => $card['nome'],
-            //"descricao" => $card['descricao'],
-            //"raridade" => $card['raridade'],
-            //"tipo" => $card['tipo'],
+            "descricao" => utf8_encode($card['descricao']),
+            "raridade" => utf8_encode($card['raridade']),
+            "tipo" => utf8_encode($card['tipo']),
             "vida" => $card['vida'],
             "mana" => $card['mana'],
             "energia" => $card['energia'],
             "imagem" => $card['imagem'],
-            // "descricao" => $card['descricao'],
             "colecao" => $card['nome_colecao'],
-            //"tipo_colecao" => $card['tipo_colecao'],
+            "tipo_colecao" => utf8_encode($card['tipo_colecao']),
             "tem_carta" => $card['hasCard'],
         );
     }
@@ -46,7 +45,7 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
     echo json_encode(array(
         "status" => "success",
         "itens" => $cards
-    ));
+    ),JSON_PRETTY_PRINT);
 
     if ($result->num_rows <= 0) {
         // Usuário encontrado

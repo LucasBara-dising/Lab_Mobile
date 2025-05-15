@@ -24,10 +24,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // if (str_contains($email, "@")) {
-        //     echo json_encode(array("mensagem" => "o Email esta invalido"), JSON_PRETTY_PRINT);
-        //     exit();
-        // }
+        if (str_contains($email, "@")) {
+            echo json_encode(array("mensagem" => "o Email esta invalido"), JSON_PRETTY_PRINT);
+            exit();
+        }
 
         // Verifica se o nome de usuário já existe
         $stmt = $conn->prepare("SELECT nome_usuario FROM tb_usuario WHERE nome_usuario = ?");
@@ -42,11 +42,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         $stmt->close(); // Fecha a declaração anterior
 
-        echo json_encode(array("mensagem" => $email), JSON_PRETTY_PRINT);
-
-
         // Hasheia a senha com bcrypt
-        $senha_hasheada = password_hash($senha_plana, PASSWORD_DEFAULT);
+        $senha_hasheada = password_hash($senha_plana, PASSWORD_BCRYPT);
 
         // Prepara a consulta SQL para inserir o novo usuário
         $stmt = $conn->prepare("INSERT INTO tb_usuario (nome_usuario, senha, email) VALUES (?, ?, ?)");

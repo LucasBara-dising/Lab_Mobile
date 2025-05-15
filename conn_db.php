@@ -3,7 +3,10 @@
 // $user = "root";
 // $password = "password";
 
-
+$host = "oncinha.mysql.dbaas.com.br";
+$user = "oncinha";
+$password = "DD32HL34q3uA#";
+$db = "oncinha";
 
 
 $conn = new mysqli($host, $user, $password, $db);

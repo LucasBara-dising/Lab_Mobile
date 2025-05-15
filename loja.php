@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] =='GET'){
             "id" => $item['id'],
             "nome" => $item['nome'],
             "preco" => $item['preco'],
-            //"tipo" => $item['tipo'],
+            "tipo" => utf8_encode($item['tipo']),
             "imagem" => $item['imagem'],
         );
     }

@@ -6,7 +6,7 @@ CREATE TABLE tb_usuario (
     nome_usuario VARCHAR(50),              -- Nome de usuário
     senha VARCHAR(255) NOT NULL,            -- Senha de acesso
     email VARCHAR(255) NOT NULL,            -- Email para comunicação
-    energia INT DEFAULT 100,               -- Energia do usuário (valor padrão 100)
+    rodadas INT DEFAULT 10,               -- vezes que o  usuário rode rolar a roleta(valor padrão 100)
     moedas INT DEFAULT 100,                  -- Moedas do usuário (valor padrão 100)
     avatar_id INT DEFAULT NULL             -- ID do avatar do usuário (valor padrão NULL)
 );
@@ -82,9 +82,9 @@ CREATE  TABLE tb_usuarios_itens (
 );
 
 
-SELECT u.nome_usuario, u.energia, u.moedas, u.avatar_id, i.user_id,  i.item_id, i.tipo_item  FROM tb_usuario as u inner join tb_usuarios_itens as i WHERE u.nome_usuario =  'jogador01'
+SELECT u.nome_usuario, u.rodadas, u.moedas, u.avatar_id, i.user_id,  i.item_id, i.tipo_item  FROM tb_usuario as u inner join tb_usuarios_itens as i WHERE u.nome_usuario =  'jogador01'
 #user
-INSERT INTO tb_usuario (nome_usuario, senha, email, energia, moedas, avatar_id)
+INSERT INTO tb_usuario (nome_usuario, senha, email, rodadas, moedas, avatar_id)
 VALUES ('jogador01', 'senha_segura', 'jogador01@email.com', 100, 50, NULL);
 
 select * from tb_usuario
@@ -125,22 +125,6 @@ INSERT INTO tb_usuarios_itens (user_id, item_id, tipo_item)
 VALUES (1, 3, 'Pacote de Cartas');
 
 
-
-select card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, col.nome from tb_carta as card inner join	tb_colecao as col ON card.id_colecao = col.id_colecao where 
-
-
-select card.nome, card.raridade, card.tipo, col.nome_colecao, itens_user.item_id, itens_user.user_id, itens_user.tipo_item  from tb_carta as card 
-	inner join tb_colecao as col ON card.id_colecao = col.id_colecao 
-	inner join tb_usuarios_itens as itens_user ON card.id_carta = itens_user.item_id 
-    where itens_user.tipo_item = 'Carta'
-    
-   
-    
-select card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, 
-	col.nome_colecao, col.tipo_colecao, 
-    IF(itens_user.tipo_item='carta' AND itens_user.item_id = card.id_carta AND itens_user.user_id = (Select id_user from tb_usuario where nome_usuario="luchas"), TRUE, FALSE) AS 'hasCard' from tb_carta as card 
-left join tb_usuarios_itens as itens_user ON card.id_carta = itens_user.item_id 	
-inner join tb_colecao as col ON card.id_colecao = col.id_colecao; 
 
 
 
