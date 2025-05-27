@@ -16,35 +16,42 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
     );
 
     $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
-
-    // Executar a consulta
     $stmt->execute();
-
     // Obter o resultado
     $result = $stmt->get_result();
-    
+
     $cards = [];
     while ($card = $result->fetch_assoc()) {
+        $categoria = utf8_encode($card['nome_colecao']);
         
-        $cards[] = array(
+        // Cria um array com os dados da carta
+        $card = [
             "id" => $card['id_carta'],
-            "nome" => $card['nome'],
-            "descricao" => utf8_encode($card['descricao']),
+            "nome" => utf8_encode($card['nome']),
             "raridade" => utf8_encode($card['raridade']),
             "tipo" => utf8_encode($card['tipo']),
             "vida" => $card['vida'],
-            "mana" => $card['mana'],
+            "ataque" => $card['mana'],
             "energia" => $card['energia'],
             "imagem" => $card['imagem'],
-            "colecao" => $card['nome_colecao'],
+            "descricao" => utf8_encode($card['descricao']),
+            "colecao" => utf8_encode($card['nome_colecao']),
             "tipo_colecao" => utf8_encode($card['tipo_colecao']),
             "tem_carta" => $card['hasCard'],
-        );
+        ];
+    
+        // Adiciona o card à categoria correspondente
+        if (!isset($categorias[$categoria])) {
+            $categorias[$categoria] = []; // Se não existe essa categoria, cria um array
+        }
+        
+        // Adiciona o card na categoria
+        $categorias[$categoria][] = $card;
     }
 
     echo json_encode(array(
         "status" => "success",
-        "itens" => $cards
+        "itens" => array_values($categorias)
     ),JSON_PRETTY_PRINT);
 
     if ($result->num_rows <= 0) {
@@ -62,5 +69,6 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
 
 // Fechar a conexão com o banco de dados
 $conn->close();
+
 
 ?>

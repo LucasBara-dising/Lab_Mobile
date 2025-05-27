@@ -21,16 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] =='GET'){
 
         $cards[] = array(
             "id" => $card['id_carta'],
-            "nome" => $card['nome'],
-            "raridade" => $card['raridade'],
-            "tipo" => $card['tipo'],
-            "vida" => $card['vida'],
-            "mana" => $card['mana'],
-            "energia" => $card['energia'],
+            "nome" => utf8_encode($card['nome']),
+            "raridade" => utf8_encode($card['raridade']),
+            "tipo" => utf8_encode($card['tipo']),
+            "vida" => utf8_encode($card['vida']),
+            "mana" => utf8_encode($card['mana']),
+            "energia" => utf8_encode($card['energia']),
             "imagem" => $card['imagem'],
-            "descricao" => $card['descricao'],
-            "colecao" => $card['nome_colecao'],
-            "tipo_colecao" => $card['tipo_colecao'],
+            "descricao" => utf8_encode($card['descricao']),
+            "colecao" => utf8_encode($card['nome_colecao']),
+            "tipo_colecao" => utf8_encode($card['tipo_colecao']),
         );
     }
 

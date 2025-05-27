@@ -88,19 +88,27 @@ INSERT INTO tb_usuario (nome_usuario, senha, email, rodadas, moedas, avatar_id)
 VALUES ('jogador01', 'senha_segura', 'jogador01@email.com', 100, 50, NULL);
 
 select * from tb_usuario
-###Coleçõa
+###Coleção
 INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
 VALUES ('Natureza', 'Coleção de cartas relacionadas ao mundo animal e criaturas místicas da natureza.', 'Animal e Místico');
+INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
+VALUES ('Selva', 'Coleção de cartas relacionadas ao mundo animal.', 'Animal e Selva');
 
 #Carta 
 -- Inserindo as cartas da coleção "Natureza"
 INSERT INTO tb_carta (nome, raridade, tipo, vida, mana, energia, imagem, descricao, id_colecao)
 VALUES
-('Macaco', 'Comum', 'Animal', 50, 30, 20, 'macaco.png', 'Carta que representa o macaco, um animal ágil e inteligente.', 1),
-('Gorila', 'Raro', 'Animal', 100, 50, 30, 'gorila.png', 'Gorila, um animal forte e imponente.', 1),
-('Mago', 'Épico', 'Mágico', 70, 100, 50, 'mago.png', 'Mago que controla elementos da natureza para atacar seus inimigos.', 1),
-('Mosca', 'Comum', 'Insecto', 10, 10, 5, 'mosca.png', 'Carta que representa uma mosca, pequena, mas ágil.', 1),
-('Capivara', 'Comum', 'Animal', 60, 20, 10, 'capivara.png', 'A capivara, um animal tranquilo e amigável.', 1);
+('Macaco', 'Comum', 'Animal', 50, 30, 20, 'https://drive.google.com/thumbnail?id=1J6NrGtUJdCo6gzUXtzcLNKD2nUab1fyG', 'Carta que representa o macaco, um animal ágil e inteligente.', 1),
+('Gorila', 'Raro', 'Animal', 100, 50, 30, 'https://drive.google.com/thumbnail?id=1c2zmJ04LsXLSoY2yomtBKp4KP-gVOmgt', 'Gorila, um animal forte e imponente.', 1),
+('Mago', 'Épico', 'Mágico', 70, 100, 50, 'https://drive.google.com/thumbnail?id=1qj1HfqKhqmEgCrCXvgxkTSrSaPBHxumW', 'Mago que controla elementos da natureza para atacar seus inimigos.', 1),
+('Mosca', 'Comum', 'Insecto', 10, 10, 5, 'https://drive.google.com/thumbnail?id=18Q_8sVrYKjsU60_qPTpXKNnPFdVz-bE2', 'Carta que representa uma mosca, pequena, mas ágil.', 1),
+('Capivara', 'Comum', 'Animal', 60, 20, 10, 'https://drive.google.com/thumbnail?id=175bUXCFNzVtRna4OE0zSm-ehzq5yUdSF', 'A capivara, um animal tranquilo e amigável.', 1),
+('Onça-pintada', 'Épico', 'Animal', 100, 50, 40, 'https://drive.google.com/thumbnail?id=1w5cJkrHWbJYi64nkqbAoRkvSv3FAASPl', 'A onça-pintada, o maior felino das Américas, conhecida por sua agilidade e força.', 2),
+('Arara-azul', 'Raro', 'Animal', 60, 30, 20, 'arara_azul.png', 'https://drive.google.com/thumbnail?id=14c988z-3TUIUq1n6GYxPPIYwT6XPW0E0', 'uma das aves mais belas e icônicas do Brasil, com plumagem vibrante.', 2),
+('Tamanduá-bandeira', 'Comum', 'Animal', 70, 20, 10, 'https://drive.google.com/thumbnail?id=1o7EeXox7-0CKo851X1lx8pphNORfP2hD', 'O tamanduá-bandeira, um animal peculiar que se alimenta de formigas e cupins.', 2),
+('Búfalo', 'Raro', 'Animal', 90, 40, 30, 'bufalo.png', 'https://drive.google.com/thumbnail?id=1d0JiBJl_q4NCeOL1g2JbY4uDIfMUnOuO, um animal forte e resistente, que habita as áreas pantanosas do Brasil.', 2),
+('Javali', 'Comum', 'Animal', 60, 25, 15, 'https://drive.google.com/thumbnail?id=1n_Qhzs1-WA_eg67NwytBYU7z3DZ8S9sj', 'O javali, um animal de grande porte que vive em matas e pode ser agressivo se ameaçado.', 2),
+('Anta', 'Épico', 'Animal', 120, 50, 60, 'https://drive.google.com/thumbnail?id=19CIPuQgOWQkznfH-FTVZ4zl9AOoK9d2j', 'A anta, o maior mamífero terrestre da América do Sul, conhecido por sua força e resistência.', 2);
 
 ##Loja
 INSERT INTO tb_itens_loja (nome, descricao, preco, tipo, imagem)
