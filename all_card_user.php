@@ -10,12 +10,15 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
     //Preparar a declaração SQL para evitar injeção de SQL
     $stmt = $conn->prepare("SELECT card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, 
 	col.nome_colecao, col.tipo_colecao, 
-    IF(itens_user.tipo_item='carta' AND itens_user.item_id = card.id_carta AND itens_user.user_id = (Select id_user from tb_usuario where nome_usuario= ?), TRUE, FALSE) AS 'hasCard' from tb_carta as card 
+    IF(itens_user.tipo_item='carta' AND 
+		itens_user.item_id = card.id_carta AND 
+        itens_user.user_id = (Select id_user from tb_usuario where nome_usuario= ?), TRUE, FALSE) AS 'hasCard'
+        from tb_carta as card 
         left join tb_usuarios_itens as itens_user ON card.id_carta = itens_user.item_id 	
-        inner join tb_colecao as col ON card.id_colecao = col.id_colecao"  
+        inner join tb_colecao as col ON card.id_colecao = col.id_colecao where itens_user.user_id = (Select id_user from tb_usuario where nome_usuario= ?) OR itens_user.user_id is null"  
     );
 
-    $stmt->bind_param("s", $nome_user); // "s" indica que o parâmetro é uma string
+    $stmt->bind_param("ss", $nome_user, $nome_user); // "s" indica que o parâmetro é uma string
     $stmt->execute();
     // Obter o resultado
     $result = $stmt->get_result();

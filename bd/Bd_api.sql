@@ -113,9 +113,9 @@ VALUES
 ##Loja
 INSERT INTO tb_itens_loja (nome, descricao, preco, tipo, imagem)
 VALUES
-('Mais Energia', 'Adiciona 50 pontos de energia ao jogador.', 30, 'Consumível', 'mais_energia.png'),
-('Comprar Moeda', 'Permite ao jogador ganhar 100 moedas.', 50, 'Consumível', 'comprar_dinheiro.png'),
-('Pacote de Cartas Comum', 'Pacote contendo 3 cartas comuns aleatórias.', 150, 'Pacote', 'pacote_comum.png'),
+('Mais Rodadas', 'Adiciona 5 Rodadas.', 100, 'Rodada', 'mais_energia.png'),
+('Mega Pacote de Rodadas', 'Adiciona 100 Rodadas.', 1000, 'Rodada', 'comprar_dinheiro.png'),
+('Pacote de Cartas Comum', 'Pacote contendo 3 cartas comuns aleatórias.', 250, 'Pacote', 'pacote_comum.png'),
 ('Pacote de Cartas Raro', 'Pacote contendo 3 cartas raras aleatórias.', 500, 'Pacote', 'pacote_raro.png'),
 ('Carta Macaco', 'Uma carta do Macaco, da coleção Natureza.', 100, 'Carta', 'carta_macaco.png');
 
