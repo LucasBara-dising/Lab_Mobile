@@ -3,7 +3,7 @@ header('Content-Type: application/json');
 
 require_once 'conn_db.php';
 
-global $Saldo_moedas, $saldo_rodada;
+global $saldo_moedas, $saldo_rodada;
 
 // Verifica se os dados foram enviados via POST
 if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $saldo_rodada = $row['rodadas'];
-        $Saldo_moedas = $row['moedas'];
+        $saldo_moedas = $row['moedas'];
 
         // Verifica se o usuário tem saldo suficiente para apostar
         if ($saldo_rodada < 1) {
@@ -33,11 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             exit();
         }
 
-        // Gira a roleta e calcula o resultado
-        $resultado = girarRoleta();
-
-        // Verifica se o usuário ganhou
-        $ganhou = verificarVitoria($resultado);
+        list($resultado, $ganhou) = gerarJogadaComChance(0.7);
 
         $figura = verifica_figura($resultado);
 
@@ -47,7 +43,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
         $stmt->bind_param("is", $saldo_rodada, $nome_user);
         $stmt->execute();
        
-        $premio = define_premios($conn, $figura, $nome_user, $Saldo_moedas, $saldo_rodada);
+        $premio = define_premios($conn, $figura, $nome_user, $saldo_moedas, $saldo_rodada);
+
+        //Atualiza valor de saldo
+        $stmt = $conn->prepare("SELECT rodadas, moedas FROM tb_usuario WHERE nome_usuario = ?");
+        $stmt->bind_param("s", $nome_user);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+            $saldo_rodada = $row['rodadas'];
+            $saldo_moedas = $row['moedas'];
+        }
+        
 
         // // Retorna o resultado e o novo saldo
          echo json_encode(array(
@@ -57,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
             "item_sequencia" => $resultado,
             "premio" => utf8_encode($premio),
             "saldo" => $saldo_rodada,
-            "moedas" => $Saldo_moedas
+            "moedas" => $saldo_moedas
         ));
     } else {
         echo json_encode(array("status" => "error", "message" => "Usuário não encontrado"));
@@ -68,39 +77,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
 }
 $conn->close();
 
-// Função para girar a roleta e gerar o resultado
-function girarRoleta() {
-    // Exemplo de 9 símbolos possíveis
+
+function gerarJogadaComChance($chanceDeVitoria = 0.7) {
     $simbolos = array("Boto", "Onça", "Arara", "Macaco", "Capivara", "Moedas", "Espinho", "Tucano", "Tesouro");
 
-    // Gera um array de 3x3 com símbolos aleatórios
-    $roleta = array(
-        array($simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)]),
-        array($simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)]),
-        array($simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)], $simbolos[array_rand($simbolos)])
-    );
+    // A matriz 3x3 de símbolos (simulando 3 linhas x 3 colunas)
+    $matriz = array_fill(0, 3, array_fill(0, 3, null));
 
-    return $roleta;
-}
+    // Decide se será uma jogada vencedora ou não
+    $comVitoria = mt_rand(0, 100) < ($chanceDeVitoria * 100);
 
-// Função para verificar se houve vitória
-function verificarVitoria($resultado) {
-    // Verifica linhas horizontais, verticais e diagonais
-    return (
-        // Linhas horizontais
-        ($resultado[0][0] === $resultado[0][1] && $resultado[0][1] === $resultado[0][2]) ||
-        ($resultado[1][0] === $resultado[1][1] && $resultado[1][1] === $resultado[1][2]) ||
-        ($resultado[2][0] === $resultado[2][1] && $resultado[2][1] === $resultado[2][2]) ||
+    if ($comVitoria) {
+        $simbolo = $simbolos[array_rand($simbolos)];
+        $linha = rand(0, 2);
+        // Força uma linha com símbolos iguais
+        for ($col = 0; $col < 3; $col++) {
+            $matriz[$linha][$col] = $simbolo;
+        }
+        // Preenche o resto com símbolos aleatórios
+        for ($i = 0; $i < 3; $i++) {
+            for ($j = 0; $j < 3; $j++) {
+                if ($matriz[$i][$j] === null) {
+                    $matriz[$i][$j] = $simbolos[array_rand($simbolos)];
+                }
+            }
+        }
+    } else {
+        // Preenche tudo aleatoriamente (sem garantir vitória)
+        for ($i = 0; $i < 3; $i++) {
+            for ($j = 0; $j < 3; $j++) {
+                $matriz[$i][$j] = $simbolos[array_rand($simbolos)];
+            }
+        }
+    }
 
-        // Colunas verticais
-        ($resultado[0][0] === $resultado[1][0] && $resultado[1][0] === $resultado[2][0]) ||
-        ($resultado[0][1] === $resultado[1][1] && $resultado[1][1] === $resultado[2][1]) ||
-        ($resultado[0][2] === $resultado[1][2] && $resultado[1][2] === $resultado[2][2]) ||
-
-        // Diagonais
-        ($resultado[0][0] === $resultado[1][1] && $resultado[1][1] === $resultado[2][2]) ||
-        ($resultado[0][2] === $resultado[1][1] && $resultado[1][1] === $resultado[2][0])
-    );
+    return [$matriz, $comVitoria];
 }
 
 function verifica_figura($matrix){
@@ -152,46 +163,45 @@ function define_premios($conn, $item, $usuario, $saldoMoedas, $saldo_rodada){
             return "Nada dessa vez";
             break;
         case "Moedas":
-                // Atualiza o saldo do usuário no banco de dados
-                $stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
-                $Saldo_moedas = $saldoMoedas + 50;
-                $stmt->bind_param("is", $Saldo_moedas, $usuario);
-                $stmt->execute();
-                return "Mais 50 moedas";
-                break;
-            case "Espinho":
-                return envia_carta($conn, $usuario, 1, 5, 4);
-                break;
-            case "Tucano":
-                // Atualiza o saldo do usuário no banco de dados         
-                $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
-                $saldo_rodada = $saldo_rodada + 6;
-                $stmt->bind_param("is", $saldo_rodada, $usuario);
-                $stmt->execute();
-                return "mais 5 rodadas";
-                break;
+            // Atualiza o saldo do usuário no banco de dados
+            $stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
+            $saldo_moedas = $saldoMoedas + 50;
+            $stmt->bind_param("is", $saldo_moedas, $usuario);
+            $stmt->execute();
+            return "Mais 50 moedas";
+            break;
+        case "Espinho":
+            return envia_carta($conn, $usuario, 1, 5, 4);
+            break;
+        case "Tucano":
+            // Atualiza o saldo do usuário no banco de dados         
+            $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
+            $saldo_rodada = $saldo_rodada + 6;
+            $stmt->bind_param("is", $saldo_rodada, $usuario);
+            $stmt->execute();
+            return "mais 5 rodadas";
+            break;
 
-            case "Capivara":
-                /// Atualiza o saldo do usuário no banco de dados
-                 $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
-                 $saldo_rodada = $saldo_rodada + 10;
-                 $stmt->bind_param("is", $saldo_rodada, $usuario);
-                 $stmt->execute();
-                return "mais 10 rodadas";
-                break;
-            case "Tesouro":
-                 // Atualiza o saldo do usuário no banco de dados
-                 $stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
-                 $Saldo_moedas = $saldoMoedas + 250;
-                 $stmt->bind_param("is", $Saldo_moedas, $usuario);
-                 $stmt->execute();
-                return " 250 moedas";
-                break;
-            case "Nada":
-                return " Sem sequencia";
-                break;
-            
-        }
+        case "Capivara":
+            /// Atualiza o saldo do usuário no banco de dados
+            $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
+            $saldo_rodada = $saldo_rodada + 10;
+            $stmt->bind_param("is", $saldo_rodada, $usuario);
+            $stmt->execute();
+            return "mais 10 rodadas";
+            break;
+        case "Tesouro":
+            // Atualiza o saldo do usuário no banco de dados
+            $stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
+            $saldo_moedas = $saldoMoedas + 250;
+            $stmt->bind_param("is", $saldo_moedas, $usuario);
+            $stmt->execute();
+            return " 250 moedas";
+            break;
+        case "Nada":
+            return "Sem sequencia";
+            break;       
+    }
         
 }
 
@@ -209,7 +219,6 @@ function weighted_random_simple($values, $weights){
     } 
     return $values[$i]; 
 }
-
     
 function envia_carta($conn, $nome_user, $peso_raridade_comum, $peso_raridade_raro, $peso_raridade_epico ) {
     // Verifica as cartas que ainda não possui

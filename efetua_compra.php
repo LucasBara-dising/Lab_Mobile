@@ -4,110 +4,145 @@ header('Content-Type: application/json');
 
 require_once 'conn_db.php';
 
-if ($_SERVER['REQUEST_METHOD'] =='GET'){
+if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
+    echo json_encode(["status" => "error", "message" => "Método não permitido"]);
+    exit;
+}
 
-     // Verificar se os campos estão preenchidos
-    if (empty($_GET['nome_user'])) {
-        echo json_encode(array("status" => "error", "message" => "Usuário não podem estar vazios"));
-        exit();
+// Verificar se os parâmetros estão presentes
+$requiredFields = ['nome_user', 'id_card', 'tipo'];
+foreach ($requiredFields as $field) {
+    if (empty($_GET[$field])) {
+        echo json_encode(["status" => "error", "message" => "Campo '$field' não pode estar vazio"]);
+        exit;
     }
+}
 
-    if (empty($_GET['id_card'])) {
-        echo json_encode(array("status" => "error", "message" => "carta não podem estar vazios"));
-        exit();
-    }
+// Receber os dados
+$nome_user = $_GET['nome_user'];
+$id_card   = (int) $_GET['id_card'];
+$tipo      = $_GET['tipo'];
 
-    if (empty($_GET['tipo'])) {
-        echo json_encode(array("status" => "error", "message" => "tipo não podem estar vazios"));
-        exit();
-    }
+// Inicializar saldos
+$saldo_rodada = 0;
+$saldo_moedas = 0;
 
-    $nome_user = $_GET['nome_user'];
-    $id_card = $_GET['id_card']; 
-    $tipo = $_GET['tipo'];
-    $saldo_rodada = 0;
-    $saldo_moedas = 0;
+//------------------------------------------\\
+// Obter saldo do usuário
+$stmt = $conn->prepare("SELECT rodadas, moedas FROM tb_usuario WHERE nome_usuario = ?");
+$stmt->bind_param("s", $nome_user);
+$stmt->execute();
+$result = $stmt->get_result();
 
-    //------------------------------------------\\
-    // Verifica o saldo do usuário
-    $stmt = $conn->prepare("SELECT rodadas, moedas FROM tb_usuario WHERE nome_usuario = ?");
-    $stmt->bind_param("s", $nome_user);
-    $stmt->execute();
-    $result = $stmt->get_result();
+if ($result->num_rows === 0) {
+    echo json_encode(["status" => "error", "message" => "Usuário não encontrado"]);
+    exit;
+}
 
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $saldo_rodada = $row['rodadas'];
-        $saldo_moedas = $row['moedas'];
-    }
-    //------------------------------------------\\
-    //seleciona itens
-    $stmt = $conn->prepare("SELECT preco, tipo from tb_itens_loja where id = ? AND tipo = ?");
+$user = $result->fetch_assoc();
+$saldo_rodada = $user['rodadas'];
+$saldo_moedas = $user['moedas'];
+$stmt->close();
+
+//------------------------------------------\\
+if($tipo ==="Rodada"){
+    // Obter item da loja
+    $stmt = $conn->prepare("SELECT preco FROM tb_itens_loja WHERE id = ? AND tipo = ?");
     $stmt->bind_param("is", $id_card, $tipo);
     $stmt->execute();
     $result_item = $stmt->get_result();
 
-    if ($result_item->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $preco_iten = $row['preco'];
-        $tipo_iten = $row['tipo'];
-    }
-    //------------------------------------------\\
-
-    //-------------Debito---------\\
-    $stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
-    $saldo_moedas = $saldo_moedas - $preco_iten;
-    $stmt->bind_param("is", $saldo_moedas, $nome_user);
-    $stmt->execute();
-
-    if($tipo== "Carta"){
-        $stmt = $conn->prepare("INSERT INTO tb_usuarios_itens (user_id, item_id, tipo_item)
-                            VALUES ((SELECT id_user FROM tb_usuario WHERE nome_usuario = ?), ?, ?)");
-    
-        // Vincular os parâmetros e executar a consulta
-        $stmt->bind_param("sis", $nome_user, $id_card, $tipo);
-        $stmt->execute();
-
-
-        echo json_encode(array(
-            "status" => "success, carta adicionada"));
-
-    }elseif($tipo== "Rodada"){
-
-        //Define quantidade rodadas
-        if($preco_iten ==100){
-            $add_rodadas= 5;
-        }elseif($preco_iten == 1000){
-            $add_rodadas= 100;
-        }
-
-        // Atualiza o saldo do usuário no banco de dados         
-                $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
-                $saldo_rodada = $saldo_rodada + $add_rodadas;
-                $stmt->bind_param("is", $saldo_rodada, $usuario);
-                $stmt->execute();
-
-
-        echo json_encode(array(
-        "status" => "success, mais "+ $add_rodadas+ " rodasdas adicionadas"));
-    }else{
-        echo json_encode(array(
-        "status" => "fail, tipo não encontrado"));
+    if ($result_item->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Item não encontrado"]);
+        exit;
     }
 
-    
-
-   
-
-    // Fechar a declaração
+    $item = $result_item->fetch_assoc();
+    $preco_item = $item['preco'];
     $stmt->close();
-} else {
-    // Parâmetro 'nome_user' não fornecido
-    echo json_encode(array("mensagem" => "Falha Na requisisao"), JSON_PRETTY_PRINT);
+    
+}elseif($tipo ==="Carta"){
+    // Obter item carta da loja
+    $stmt = $conn->prepare("SELECT raridade FROM tb_carta WHERE id_carta = ? ");
+    $stmt->bind_param("i", $id_card);
+    $stmt->execute();
+    $result_item = $stmt->get_result();
+
+    if ($result_item->num_rows === 0) {
+        echo json_encode(["status" => "error", "message" => "Item de carta não encontrado"]);
+        exit;
+    }
+
+    $item = $result_item->fetch_assoc();
+    $preco_item = setValor($item['raridade']);
+    $stmt->close();
 }
 
+//-------------------------------------------------------------------\\
 
-// Fechar a conexão com o banco de dados
+//--------------------Debito-----------------\\
+    // Verifica se o usuário tem moedas suficientes
+if ($saldo_moedas < $preco_item) {
+    echo json_encode(["status" => "error", "message" => "Saldo insuficiente"]);
+    exit;
+}
+// Debitar moedas
+$novo_saldo_moedas = $saldo_moedas - $preco_item;
+$stmt = $conn->prepare("UPDATE tb_usuario SET moedas = ? WHERE nome_usuario = ?");
+$stmt->bind_param("is", $novo_saldo_moedas, $nome_user);
+$stmt->execute();
+$stmt->close();
+
+
+// Processar compra com base no tipo
+if ($tipo === "Carta") {
+    $stmt = $conn->prepare("INSERT INTO tb_usuarios_itens (user_id, item_id, tipo_item)
+        VALUES ((SELECT id_user FROM tb_usuario WHERE nome_usuario = ?), ?, ?)");
+    $stmt->bind_param("sis", $nome_user, $id_card, $tipo);
+    $stmt->execute();
+    $stmt->close();
+
+    echo json_encode(["status" => "success", "message" => "Carta adicionada"]);
+} elseif ($tipo === "Rodada") {
+    $add_rodadas = match($preco_item) {
+        100 => 5,
+        1000 => 100,
+        default => 0
+    };
+
+    if ($add_rodadas === 0) {
+        echo json_encode(["status" => "error", "message" => "Preço inválido para tipo 'Rodada'"]);
+        exit;
+    }
+
+    $novo_saldo_rodada = $saldo_rodada + $add_rodadas;
+    $stmt = $conn->prepare("UPDATE tb_usuario SET rodadas = ? WHERE nome_usuario = ?");
+    $stmt->bind_param("is", $novo_saldo_rodada, $nome_user);
+    $stmt->execute();
+    $stmt->close();
+
+    echo json_encode(["status" => "success", "message" => "$add_rodadas rodadas adicionadas"]);
+} else {
+    echo json_encode(["status" => "error", "message" => "Tipo de item inválido"]);
+}
+
+// Fechar conexão
 $conn->close();
 
+function setValor($raridade){
+    $valor=0;
+    if($raridade == "Comum" ){
+        $valor = 150;
+    }elseif($raridade == "Raro" ){
+        $valor = 500;
+    }elseif($raridade == "Épico" ){
+        $valor = 1500;
+    }elseif($raridade == "Lendario" ){
+        $valor = 5000;
+    }else{
+        $valor = 2800;
+    }
+
+    return $valor;
+}
 ?>

@@ -96,8 +96,6 @@ function setValor($raridade){
     }
 
     return $valor;
-
-
 }
 
 ?>

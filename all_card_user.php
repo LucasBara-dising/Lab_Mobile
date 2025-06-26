@@ -8,7 +8,7 @@ if (isset($_GET['nome_user'])) { // Verifica se o parâmetro 'nome_user' foi for
     $nome_user = $_GET['nome_user'];
     
     //Preparar a declaração SQL para evitar injeção de SQL
-    $stmt = $conn->prepare("SELECT card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, 
+    $stmt = $conn->prepare("SELECT DISTINCT card.id_carta, card.nome, card.raridade, card.tipo, card.vida, card.mana, card.energia, card.imagem, card.descricao, 
 	col.nome_colecao, col.tipo_colecao, 
     IF(itens_user.tipo_item='carta' AND 
 		itens_user.item_id = card.id_carta AND 

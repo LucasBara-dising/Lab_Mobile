@@ -81,6 +81,17 @@ CREATE  TABLE tb_usuarios_itens (
     CONSTRAINT fk_item_user FOREIGN KEY (user_id) REFERENCES tb_usuario (id_user)    -- Chave estrangeira para a tabela itens_loja
 );
 
+CREATE TABLE tb_batalha (
+    data_jogada TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+    user_id INT NOT NULL,
+    deck VARCHAR(50) NOT NULL,
+    deck_bot VARCHAR(50) NOT NULL,
+    jogada VARCHAR(100) NOT NULL,
+    PRIMARY KEY (data_compra, user_id),  -- Se quiser garantir que o par (data_compra, user_id) seja único
+    CONSTRAINT fk_item_user FOREIGN KEY (user_id) REFERENCES tb_usuario (id_user)
+);
+
+
 
 SELECT u.nome_usuario, u.rodadas, u.moedas, u.avatar_id, i.user_id,  i.item_id, i.tipo_item  FROM tb_usuario as u inner join tb_usuarios_itens as i WHERE u.nome_usuario =  'jogador01'
 #user
@@ -93,6 +104,12 @@ INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
 VALUES ('Natureza', 'Coleção de cartas relacionadas ao mundo animal e criaturas místicas da natureza.', 'Animal e Místico');
 INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
 VALUES ('Selva', 'Coleção de cartas relacionadas ao mundo animal.', 'Animal e Selva');
+INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
+VALUES ('Pesonhetos', 'Coleção de cartas relacionadas a incetos pesonhetos.', 'Animal e Insetos');
+INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
+VALUES ('Mágico', 'Coleção de cartas Mágico', 'Mágicos e Bruxos');
+INSERT INTO tb_colecao (nome_colecao, descricao_colecao, tipo_colecao)
+VALUES ('Aquático', 'Coleção de cartas relacionadas a agua.', 'Animal Aquáticos');
 
 #Carta 
 -- Inserindo as cartas da coleção "Natureza"
@@ -109,6 +126,23 @@ VALUES
 ('Búfalo', 'Raro', 'Animal', 90, 40, 30, 'bufalo.png', 'https://drive.google.com/thumbnail?id=1d0JiBJl_q4NCeOL1g2JbY4uDIfMUnOuO, um animal forte e resistente, que habita as áreas pantanosas do Brasil.', 2),
 ('Javali', 'Comum', 'Animal', 60, 25, 15, 'https://drive.google.com/thumbnail?id=1n_Qhzs1-WA_eg67NwytBYU7z3DZ8S9sj', 'O javali, um animal de grande porte que vive em matas e pode ser agressivo se ameaçado.', 2),
 ('Anta', 'Épico', 'Animal', 120, 50, 60, 'https://drive.google.com/thumbnail?id=19CIPuQgOWQkznfH-FTVZ4zl9AOoK9d2j', 'A anta, o maior mamífero terrestre da América do Sul, conhecido por sua força e resistência.', 2);
+
+INSERT INTO tb_carta (nome, raridade, tipo, vida, mana, energia, imagem, descricao, id_colecao)
+('Cachorro', 'Raro', 'Animal', 60, 15, 80, 'https://drive.google.com/thumbnail?id=1DNWku_jVIcGPat8ByGC4bvO7pXZN8c1s', 'O melhor amigo do homem', 5)
+('Aranha Marrom', 'Comum', 'Inseto', 15, 15, 15,'https://drive.google.com/thumbnail?id=15gd_mfTECLhx3qbF-DJUcQmQWjhoYeLK', 'Aranha de menor poder', 3)
+('Viúva Negra', 'Raro', 'Inseto', 30, 30, 30, 'https://drive.google.com/thumbnail?id=1Q6RK77ms94AQRQu9imHdAvoRmPHfNKWV', 'Aranha de poder superior a aranha marrom', 3)
+('Formiga', 'Comum', 'Inseto', 10, 15, 20, 'https://drive.google.com/thumbnail?id=1d_Pqs8PWDtWwzsoT7iPlzZZ9mtwV9uH9', 'um inseto com poder maior de energia do que vida', 3)
+('Gambá', 'Comum', 'Animal', 20, 25, 20, 'https://drive.google.com/thumbnail?id=1NeQmsFJMz4Hxn0JUc1zCEsDoZK9MBMN1', 'um animal traiçoeiro com instintos defensivos', 5)
+('Elo Perdido', 'Épico', 'Humanoide', 80, 40, 70, 'https://drive.google.com/thumbnail?id=1n1AtTAtCSFDQI-z3fTYIl__JiypwDMgt', 'O elo perdido entre o homem e o macaco', 3)
+('Minhoca', 'Comum', 'Inseto', 10, 10, 20, 'https://drive.google.com/thumbnail?id=1GT6Sx3XqRldaFFTT1unmUzH0SoRDg202', 'Um monstro fraco mas que combinada com uma carta magica pode se tornar muito útil', 3)
+('Enguia Elétrica', 'Raro', 'Aquático', 35, 60, 40, 'https://drive.google.com/thumbnail?id=1b_WybfmaGoGavhn_2UlOFbBIRdZ-_utV','Forte contra monstros aquáticos, mesmo sendo um', 5)
+('Baiacu', 'Raro', 'Aquático', 60, 35, 40, 'https://drive.google.com/thumbnail?id=1KJ3CrljZMvcCl1VAyuhKcsgPyAY2G8hs','Uma forte defesa contra monstros animais', 4)
+('Solidão', 'Épico', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1mwhTiw0JUpQb98z19fLS7gTFKJNiKYax','Quando esta carta é usada, o adversário fica uma rodada sem comprar carta', 4)
+('Armadura', 'Raro', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1SolIkDnfhwFVyMAapquT6YceFBPboMPX','Quando equipada, esta carta dobra os pontos de vida e energia do monstro, só pode ser usada em "animais"', 4)
+('Vara de Pesca', 'Épico', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1J4G_RicLnrwP5Uh902ogttBkgAzyHSHs','Quando usava junto da carta "minhoca", você pode pegar um monstro "aquático do deck e colocar na sua mão"', 5)
+('Grande Árvore', 'Raro', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1o1vV6YHOaBIHUTytIuuxwi17BZ1NUQq8/','Essa carta da 50 de energia para monstros "Macaco"', 4)
+('Teia de Aranha', 'Raro', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1e4QyZ02RqjonP9rOEvFLM2xXnZm6rkNN','Essa carta da 30 pontos para cada atributo e monstros "aranhas" e tira 15 de cada atributo dos demais monstros "insetos"', 4)
+('Rio Molhado', 'Raro', 'Magica', 0, 0, 0, 'https://drive.google.com/thumbnail?id=1CxRBmahOraS98gwzS8dzOkgFISnG7I00', 'Quando colocada em campo, essa carta da 30 pontos de vida e energia para os monstros "aquáticos"', 4)
 
 ##Loja
 INSERT INTO tb_itens_loja (nome, descricao, preco, tipo, imagem)

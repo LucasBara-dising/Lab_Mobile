@@ -7,8 +7,10 @@ require_once 'conn_db.php'; // Inclui o arquivo de configuração do banco de da
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Obtém os dados do formulário
-    $nome_user = $_POST['nome_user'];
-    $senha_fornecida = $_POST["senha"]; // Senha digitada pelo usuário
+    $nome_user = $POST['nome_user'];
+    $senha_fornecida = $POST["senha"]; // Senha digitada pelo usuário
+
+    echo($nome_user);
 
     // Verificar se os campos estão preenchidos
     if (empty($nome_user) || empty($senha_fornecida)) {
@@ -68,6 +70,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // Fecha a declaração
     $stmt->close();
+}else{
+      echo json_encode(array("mensagem" => "tem que ser post"), JSON_PRETTY_PRINT);
 }
 
 // Fecha a conexão com o banco de dados
